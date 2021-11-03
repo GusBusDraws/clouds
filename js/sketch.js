@@ -1,12 +1,13 @@
 let nPixelsRow = 1100;
 let nPixelsCol = 2000;
 let res = 10;
-let fps = 2;
-let margins = 150;
+let fps = 5;
+// let margins = 110;
+let margins = undefined;
 let probSeedCol0Init = 0.05;
-let probSeedCol0Spawn = 0.001;
-let probSeedCol0Beside = 0.45;
-let probSeedCol0TopCorner = 0.25;
+let probSeedCol0Spawn = 0.002;
+let probSeedCol0Beside = 0.4;
+let probSeedCol0TopCorner = 0.3;
 let probSeedCol0BottomCorner = 0.25;
 let frame = 0;
 let bg = [75, 150, 200];
@@ -15,7 +16,7 @@ let nRows;
 let seedLocs = [];
 let probSeedCells;
 let clouds = [];
-let cloudsToDelete
+let cloudsToDelete;
 let liveCells;
 
 function setup() {
@@ -122,6 +123,7 @@ function draw() {
   if (margins) {
     erase();
     rect(margins, margins, 1920 - (2*margins), 1080 - (2*margins));
+    noErase();
   }
   // Increment frame for next loop
   frame++;
