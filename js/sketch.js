@@ -1,15 +1,17 @@
-let nPixelsRow = 1100;
-let nPixelsCol = 2000;
+// let nPixelsRow = 1100;
+// let nPixelsCol = 2000;
+// let res = 10;
+let nPixelsRow = 2000;
+let nPixelsCol = 1100;
 let res = 10;
 let fps = 5;
 // let margins = 110;
 let margins = undefined;
 let probSeedCol0Init = 0.05;
 let probSeedCol0Spawn = 0.002;
-let probSeedCol0Beside = 0.4;
+let probSeedCol0Beside = 0.45;
 let probSeedCol0TopCorner = 0.3;
-let probSeedCol0BottomCorner = 0.25;
-let frame = 0;
+let probSeedCol0BottomCorner = 0.2;
 let bg = [75, 150, 200];
 let nCols;
 let nRows;
@@ -18,10 +20,17 @@ let probSeedCells;
 let clouds = [];
 let cloudsToDelete;
 let liveCells;
+// Set true to save GIF animation
+// let save = true;
+let save = false;
+let wait = 0;
+let nFrames = 100;
 
 function setup() {
   createCanvas(nPixelsCol, nPixelsRow);
+  console.log('setup');
   frameRate(fps);
+  background(bg[0], bg[1], bg[2]);
   nRows = height / res;
   nCols = width / res;
   probSeedGrid = make2DArray(nRows, nCols, undefined);
@@ -36,9 +45,14 @@ function setup() {
       clouds.push(new Cloud(r, 0, res));
     }
   }
+  if (save && frameCount - 1 < nFrames) saveCanvas(
+    `frame_${('000' + frameCount).slice(-3)}`
+  );
+  console.log('end of setup')
 }
 
 function draw() {
+  console.log(frameCount);
   background(bg[0], bg[1], bg[2]);
   //-------------//
   // Draw Clouds //
@@ -125,6 +139,8 @@ function draw() {
     rect(margins, margins, 1920 - (2*margins), 1080 - (2*margins));
     noErase();
   }
-  // Increment frame for next loop
-  frame++;
+  // if save is true, save frames
+  if (save && frameCount - 1 < nFrames) saveCanvas(
+    `frame_${('000' + frameCount).slice(-3)}`
+  );
 }
