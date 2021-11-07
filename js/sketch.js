@@ -26,6 +26,16 @@ let save = false;
 let wait = 0;
 let nFrames = 100;
 
+a, b = preset('overlay');
+
+function preset(name) {
+  if (name === 'overlay') {
+    let a = 1;
+    let b = 2;
+  }
+  return a, b;
+}
+
 function setup() {
   createCanvas(nPixelsCol, nPixelsRow);
   console.log('setup');
@@ -49,6 +59,19 @@ function setup() {
     `frame_${('000' + frameCount).slice(-3)}`
   );
   console.log('end of setup')
+}
+
+function keyPressed() {
+  // Set spacebar to toggle play/pause of drawing loop
+  if (key === ' ') {
+    if (isLooping()) {
+      noLoop();
+    } else {
+      loop();
+    }
+  }
+  // Disable any default browser actions
+  return false;
 }
 
 function draw() {
