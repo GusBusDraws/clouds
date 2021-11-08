@@ -1,12 +1,5 @@
-// let nPixelsRow = 1100;
-// let nPixelsCol = 2000;
-// let res = 10;
-let nPixelsRow = 2000;
-let nPixelsCol = 1100;
-let res = 10;
+const preset = 'square'
 let fps = 5;
-// let margins = 110;
-let margins = undefined;
 let probSeedCol0Init = 0.05;
 let probSeedCol0Spawn = 0.002;
 let probSeedCol0Beside = 0.45;
@@ -26,14 +19,26 @@ let save = false;
 let wait = 0;
 let nFrames = 100;
 
-a, b = preset('overlay');
+const [nPixelsRow, nPixelsCol, res, margins] = presets(preset);
 
-function preset(name) {
-  if (name === 'overlay') {
-    let a = 1;
-    let b = 2;
+function presets(name) {
+  let nPixelsRow;
+  let nPixelsCol;
+  let res;
+  let margins;
+  if (name == 'overlay') {
+    nPixelsRow = 1100;
+    nPixelsCol = 2000;
+    res = 10;
+    margins = 110;
   }
-  return a, b;
+  else if (name == 'square') {
+    nPixelsRow = 500;
+    nPixelsCol = 500;
+    res = 10;
+    margins = undefined;
+  }
+  return [nPixelsRow, nPixelsCol, res, margins];
 }
 
 function setup() {
@@ -75,7 +80,6 @@ function keyPressed() {
 }
 
 function draw() {
-  console.log(frameCount);
   background(bg[0], bg[1], bg[2]);
   //-------------//
   // Draw Clouds //
