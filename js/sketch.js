@@ -8,7 +8,7 @@ let probSeedCol0BottomCorner = 0.2;
 let bg = [75, 150, 200];
 let nCols;
 let nRows;
-let seedLocs = [];
+let probLocs = [];
 let probSeedCells;
 let clouds = [];
 let cloudsToDelete;
@@ -41,6 +41,17 @@ function presets(name) {
   return [nPixelsRow, nPixelsCol, res, margins];
 }
 
+function keyPressed() {
+  // Set spacebar to toggle play/pause of drawing loop
+  if (key === ' ') {
+    if (isLooping()) {
+      noLoop();
+    } else {
+      loop();
+    }
+  }
+}
+
 function setup() {
   createCanvas(nPixelsCol, nPixelsRow);
   console.log('setup');
@@ -66,19 +77,6 @@ function setup() {
   console.log('end of setup')
 }
 
-function keyPressed() {
-  // Set spacebar to toggle play/pause of drawing loop
-  if (key === ' ') {
-    if (isLooping()) {
-      noLoop();
-    } else {
-      loop();
-    }
-  }
-  // Disable any default browser actions
-  return false;
-}
-
 function draw() {
   background(bg[0], bg[1], bg[2]);
   //-------------//
@@ -87,9 +85,11 @@ function draw() {
   for (let cloud of clouds) {
     cloud.draw();
   }
+
   //-------------//
   // Move clouds //
   //-------------//
+  
   // Wipe liveCells so that cells can be moved and redrawn
   liveCells = make2DArray(nRows, nCols, 0);
   for (let cloud of clouds) {
@@ -103,36 +103,40 @@ function draw() {
     // Reset clouds to a filtered version of itself with only the items that have Cloud.toDelete !== 1
     clouds = clouds.filter(cloud => !cloud.toDelete);
   }
+
   //-----------//
   // Sum probs //
   //-----------//
+
   // Live cell based probs
   for (let cloud of clouds) {
     // For clouds in column 1, sum probs for new column 0 seeds
     if (cloud.c == 1) {
       // Sum probs for seeds to form in col 0 directly beside live cells in col 1
-      probSeedGrid, seedLocs = cloud.besideProb(
-        probSeedGrid, seedLocs, probSeedCol0Beside
+      probSeedGrid, probLocs = cloud.besideProb(
+        probSeedGrid, probLocs, probSeedCol0Beside
       );
       // Sum probs for seeds to form in col 0 above and beside live cells in col 1
       if (cloud.r != 0) {
-        probSeedGrid, seedLocs = cloud.topCornerProb(
-          probSeedGrid, seedLocs, probSeedCol0TopCorner
+        probSeedGrid, probLocs = cloud.topCornerProb(
+          probSeedGrid, probLocs, probSeedCol0TopCorner
         );
       }
       // Sum probs for seeds to form in col 0 below and beside live cells in col 1
       if (cloud.r != nRows - 1) {
-        probSeedGrid, seedLocs = cloud.bottomCornerProb(
-          probSeedGrid, seedLocs, probSeedCol0BottomCorner
+        probSeedGrid, probLocs = cloud.bottomCornerProb(
+          probSeedGrid, probLocs, probSeedCol0BottomCorner
         );
       }
     }
   }
+
   //------------//
   // Calc Probs //
   //------------//
+
   // Calculate probabilities to determine which cells need to be drawn
-  for (let loc of seedLocs) {
+  for (let loc of probLocs) {
     let seed = probSeedGrid[loc[0]][loc[1]];
     let cell = calcProb(seed.prob);
     // If cell is to be turned from dead to alive, make a new Cloud object (cell is true in this case because it will be 1 and !liveCells[seed.r][seed.c] is true because seed location in liveCells was previously undefined)
@@ -146,6 +150,7 @@ function draw() {
       liveCells[seed.r][seed.c] = 1;
     }
   }
+
   // Calculate the spawning of any new clouds
   for (r = 0; r < nRows; r++) {
     // Calc probability seed will be 0 or 1 based on probSeedCol0Spawn
@@ -155,9 +160,11 @@ function draw() {
       clouds.push(new Cloud(r, 0, res));
     }
   }
+
   // Clear probabilities
   probSeedGrid = make2DArray(nRows, nCols, 0);
-  seedLocs = [];
+  probLocs = [];
+
   //--------------//
   // Erase Center // 
   //--------------//
