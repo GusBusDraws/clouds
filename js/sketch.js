@@ -1,4 +1,4 @@
-const preset = 'square'
+const preset = 'procreate-overlay'
 let fps = 5;
 let probSeedCol0Init = 0.05;
 let probSeedCol0Spawn = 0.002;
@@ -26,11 +26,17 @@ function presets(name) {
   let nPixelsCol;
   let res;
   let margins;
-  if (name == 'overlay') {
+  if (name == 'magma-overlay') {
     nPixelsRow = 1100;
     nPixelsCol = 2000;
     res = 10;
     margins = 110;
+  }
+  else if (name == 'procreate-overlay') {
+    nPixelsRow = 1100;
+    nPixelsCol = 2000;
+    res = 10;
+    margins = 150;
   }
   else if (name == 'square') {
     nPixelsRow = 500;
