@@ -1,4 +1,4 @@
-const preset = 'procreate-overlay'
+const preset = 'square';
 let fps = 5;
 let probSeedCol0Init = 0.05;
 let probSeedCol0Spawn = 0.002;
@@ -9,7 +9,7 @@ let bg = [75, 150, 200];
 let nCols;
 let nRows;
 let probLocs = [];
-let probSeedCells;
+let probGrid;
 let clouds = [];
 let cloudsToDelete;
 let liveCells;
@@ -65,7 +65,7 @@ function setup() {
   background(bg[0], bg[1], bg[2]);
   nRows = height / res;
   nCols = width / res;
-  probSeedGrid = make2DArray(nRows, nCols, undefined);
+  probGrid = make2DArray(nRows, nCols, undefined);
   liveCells = make2DArray(nRows, nCols, 0);
   cloudsToDelete = make2DArray(nRows, nCols, 0);
   // Fill column 0 with initial seed probs
@@ -85,20 +85,16 @@ function setup() {
 
 function draw() {
   background(bg[0], bg[1], bg[2]);
-  //-------------//
-  // Draw Clouds //
-  //-------------//
-  for (let cloud of clouds) {
-    cloud.draw();
-  }
-
-  //-------------//
-  // Move clouds //
-  //-------------//
-  
   // Wipe liveCells so that cells can be moved and redrawn
   liveCells = make2DArray(nRows, nCols, 0);
   for (let cloud of clouds) {
+    //-------------//
+    // Draw Clouds //
+    //-------------//
+    cloud.draw();
+    //-------------//
+    // Move clouds //
+    //-------------//
     if (!cloudsToDelete[cloud.r][cloud.c]) {
       cloud.move();
       liveCells[cloud.r][cloud.c] = 1;
@@ -108,42 +104,35 @@ function draw() {
     }
     // Reset clouds to a filtered version of itself with only the items that have Cloud.toDelete !== 1
     clouds = clouds.filter(cloud => !cloud.toDelete);
-  }
-
-  //-----------//
-  // Sum probs //
-  //-----------//
-
-  // Live cell based probs
-  for (let cloud of clouds) {
+    //-----------//
+    // Sum probs //
+    //-----------//
     // For clouds in column 1, sum probs for new column 0 seeds
     if (cloud.c == 1) {
       // Sum probs for seeds to form in col 0 directly beside live cells in col 1
-      probSeedGrid, probLocs = cloud.besideProb(
-        probSeedGrid, probLocs, probSeedCol0Beside
+      probGrid, probLocs = cloud.besideProb(
+        probGrid, probLocs, probSeedCol0Beside
       );
       // Sum probs for seeds to form in col 0 above and beside live cells in col 1
       if (cloud.r != 0) {
-        probSeedGrid, probLocs = cloud.topCornerProb(
-          probSeedGrid, probLocs, probSeedCol0TopCorner
+        probGrid, probLocs = cloud.topCornerProb(
+          probGrid, probLocs, probSeedCol0TopCorner
         );
       }
       // Sum probs for seeds to form in col 0 below and beside live cells in col 1
       if (cloud.r != nRows - 1) {
-        probSeedGrid, probLocs = cloud.bottomCornerProb(
-          probSeedGrid, probLocs, probSeedCol0BottomCorner
+        probGrid, probLocs = cloud.bottomCornerProb(
+          probGrid, probLocs, probSeedCol0BottomCorner
         );
       }
     }
   }
-
   //------------//
   // Calc Probs //
   //------------//
-
   // Calculate probabilities to determine which cells need to be drawn
   for (let loc of probLocs) {
-    let seed = probSeedGrid[loc[0]][loc[1]];
+    let seed = probGrid[loc[0]][loc[1]];
     let cell = calcProb(seed.prob);
     // If cell is to be turned from dead to alive, make a new Cloud object (cell is true in this case because it will be 1 and !liveCells[seed.r][seed.c] is true because seed location in liveCells was previously undefined)
     if (cell && !liveCells[seed.r][seed.c]) {
@@ -156,7 +145,6 @@ function draw() {
       liveCells[seed.r][seed.c] = 1;
     }
   }
-
   // Calculate the spawning of any new clouds
   for (r = 0; r < nRows; r++) {
     // Calc probability seed will be 0 or 1 based on probSeedCol0Spawn
@@ -166,11 +154,9 @@ function draw() {
       clouds.push(new Cloud(r, 0, res));
     }
   }
-
   // Clear probabilities
-  probSeedGrid = make2DArray(nRows, nCols, 0);
+  probGrid = make2DArray(nRows, nCols, 0);
   probLocs = [];
-
   //--------------//
   // Erase Center // 
   //--------------//
