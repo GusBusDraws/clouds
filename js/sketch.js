@@ -110,20 +110,23 @@ function draw() {
     // For clouds in column 1, sum probs for new column 0 seeds
     if (cloud.c == 1) {
       // Sum probs for seeds to form in col 0 directly beside live cells in col 1
-      probGrid, probLocs = cloud.besideProb(
-        probGrid, probLocs, probSeedCol0Beside
+      probGrid[cloud.r][0] = sumProb(
+        probGrid[cloud.r][cloud.c], probSeedCol0Beside
       );
+      probLocs.push([cloud.r, 0]);
       // Sum probs for seeds to form in col 0 above and beside live cells in col 1
       if (cloud.r != 0) {
-        probGrid, probLocs = cloud.topCornerProb(
-          probGrid, probLocs, probSeedCol0TopCorner
+        probGrid[cloud.r - 1][0] = sumProb(
+          probGrid[cloud.r - 1][0], probSeedCol0TopCorner
         );
+        probLocs.push([cloud.r - 1, 0]);
       }
       // Sum probs for seeds to form in col 0 below and beside live cells in col 1
       if (cloud.r != nRows - 1) {
-        probGrid, probLocs = cloud.bottomCornerProb(
-          probGrid, probLocs, probSeedCol0BottomCorner
+        probGrid[cloud.r + 1][0] = sumProb(
+          probGrid[cloud.r + 1][0], probSeedCol0BottomCorner
         );
+        probLocs.push([cloud.r + 1, 0]);
       }
     }
   }
@@ -132,17 +135,17 @@ function draw() {
   //------------//
   // Calculate probabilities to determine which cells need to be drawn
   for (let loc of probLocs) {
-    let seed = probGrid[loc[0]][loc[1]];
-    let cell = calcProb(seed.prob);
+    let prob = probGrid[loc[0]][loc[1]];
+    let cell = calcProb(prob);
     // If cell is to be turned from dead to alive, make a new Cloud object (cell is true in this case because it will be 1 and !liveCells[seed.r][seed.c] is true because seed location in liveCells was previously undefined)
-    if (cell && !liveCells[seed.r][seed.c]) {
+    if (cell && !liveCells[loc[0]][loc[1]]) {
       // Add a new cloud object to the clouds list
-      clouds.push(new Cloud(seed.r, seed.c, res));
-    } else if (!cell && liveCells[seed.r][seed.c]) {
-      cloudsToDelete[seed.r][seed.c] = 1;
+      clouds.push(new Cloud(loc[0], loc[1], res));
+    } else if (!cell && liveCells[loc[0]][loc[1]]) {
+      cloudsToDelete[loc[0]][loc[1]] = 1;
     }
     if (cell) {
-      liveCells[seed.r][seed.c] = 1;
+      liveCells[loc[0]][loc[1]] = 1;
     }
   }
   // Calculate the spawning of any new clouds
