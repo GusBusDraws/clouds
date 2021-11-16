@@ -5,6 +5,7 @@ let probSeedCol0Spawn = 0.002;
 let probSeedCol0Beside = 0.45;
 let probSeedCol0TopCorner = 0.3;
 let probSeedCol0BottomCorner = 0.2;
+let probGrow = 0.05;
 let bg = [75, 150, 200];
 let nCols;
 let nRows;
@@ -88,13 +89,13 @@ function draw() {
   // Wipe liveCells so that cells can be moved and redrawn
   liveCells = make2DArray(nRows, nCols, 0);
   for (let cloud of clouds) {
-    //-------------//
+    /////////////////
     // Draw Clouds //
-    //-------------//
+    /////////////////
     cloud.draw();
-    //-------------//
+    /////////////////
     // Move clouds //
-    //-------------//
+    /////////////////
     if (!cloudsToDelete[cloud.r][cloud.c]) {
       cloud.move();
       liveCells[cloud.r][cloud.c] = 1;
@@ -102,11 +103,36 @@ function draw() {
       cloud.toDelete = 1;
       cloudsToDelete[cloud.r][cloud.c] = 0;
     }
-    // Reset clouds to a filtered version of itself with only the items that have Cloud.toDelete !== 1
-    clouds = clouds.filter(cloud => !cloud.toDelete);
-    //-----------//
+    ///////////////
     // Sum probs //
-    //-----------//
+    ///////////////
+    // Set row offset range for surrounding cells to make sure off-grid probabilities aren't added
+    if (cloud.r == 0) {
+      let rowOffsetRange = [0, 1];
+    } else if (cloud.r == nRows - 1) {
+      let rowOffsetRange = [-1, 0];
+    } else {
+      let rowOffsetRange = [-1, 1];
+    }
+    // Set column offset range for surrounding cells to make sure off-grid probabilities aren't added
+    if (cloud.c == 0) {
+      let colOffsetRange = [0, 1];
+    } else if (cloud.c == nCols - 1) {
+      let colOffsetRange = [-1, 0];
+    } else {
+      let colOffsetRange = [-1, 1];
+    }
+    // Iterate through the row & column offsets to sum the probabilities of growing a cell in each of the cells surrounding a live cloud cell
+    for (let rowOffset = rowOffsetRange[0]; rowOffset <= rowOffsetRange[1]; rowOffset++) {
+      for (let colOffset = colOffsetRange[0]; colOffset <= colOffsetRange[1]; colOffset++) {
+        let row = cloud.r + rowOffset;
+        let col = cloud.c + colOffset;
+        probGrid[row][col] = sumProb(
+          probGrid[row][col], probGrow
+        );
+        probLocs.push([row, col]);
+      }
+    }
     // For clouds in column 1, sum probs for new column 0 seeds
     if (cloud.c == 1) {
       // Sum probs for seeds to form in col 0 directly beside live cells in col 1
@@ -130,6 +156,8 @@ function draw() {
       }
     }
   }
+  // Reset clouds to a filtered version of itself with only the items that have Cloud.toDelete !== 1
+  clouds = clouds.filter(cloud => !cloud.toDelete);
   //------------//
   // Calc Probs //
   //------------//
