@@ -213,6 +213,7 @@ function draw() {
       // Add a new cloud object to the clouds list
       clouds.push(new Cloud(loc[0], loc[1], res));
     } else if (!cell && liveCells[loc[0]][loc[1]]) {
+      // If cell is to be turned from alive to dead, mark the Cloud object to be deleted in cloudsToDelete 2D array and turn the cell off in liveCells.
       cloudsToDelete[loc[0]][loc[1]] = 1;
       liveCells[loc[0]][loc[1]] = 0;
     }
