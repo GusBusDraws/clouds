@@ -94,9 +94,6 @@ function draw() {
   probLocs = [];
   // Delete clouds that drifted off the screen in the previous loop by reseting clouds array to a filtered version of itself with only the items that have Cloud.toDelete !== 1
   clouds = clouds.filter(cloud => !cloud.toDelete);
-  /////////////////////////////////////////////////////////////////
-  // Iterate through clouds to Draw, Move, and Sum probabilities //
-  /////////////////////////////////////////////////////////////////
   for (let cloud of clouds) {
     // Ignore cloud if deleted
     //--------------------------------------------------------------------------
@@ -105,10 +102,14 @@ function draw() {
     //   cloud.toDelete = 1;
     //   continue;
     // }
-    // Draw Clouds
+    /////////////////
+    // Draw Clouds //
+    /////////////////
     //--------------------------------------------------------------------------
     cloud.draw();
-    // Move Clouds
+    /////////////////
+    // Move Clouds //
+    /////////////////
     //--------------------------------------------------------------------------
     cloud.move();
     liveCells[cloud.r][cloud.c] = 1;
@@ -116,7 +117,9 @@ function draw() {
     if (cloud.c == nCols) {
       cloud.toDelete = 1;
     } 
-    // Sum probabilities
+    ///////////////////////
+    // Sum probabilities //
+    ///////////////////////
     //--------------------------------------------------------------------------
     // Add probability of cloud to maintain by adding probability to grid
     //--------------------------------------------------------------------------
