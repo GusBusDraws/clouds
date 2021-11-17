@@ -107,20 +107,22 @@ function draw() {
     // Sum probs //
     ///////////////
     // Set row offset range for surrounding cells to make sure off-grid probabilities aren't added
+    let rowOffsetRange;
     if (cloud.r == 0) {
-      let rowOffsetRange = [0, 1];
+      rowOffsetRange = [0, 1];
     } else if (cloud.r == nRows - 1) {
-      let rowOffsetRange = [-1, 0];
+      rowOffsetRange = [-1, 0];
     } else {
-      let rowOffsetRange = [-1, 1];
+      rowOffsetRange = [-1, 1];
     }
     // Set column offset range for surrounding cells to make sure off-grid probabilities aren't added
+    let colOffsetRange;
     if (cloud.c == 0) {
-      let colOffsetRange = [0, 1];
+      colOffsetRange = [0, 1];
     } else if (cloud.c == nCols - 1) {
-      let colOffsetRange = [-1, 0];
+      colOffsetRange = [-1, 0];
     } else {
-      let colOffsetRange = [-1, 1];
+      colOffsetRange = [-1, 1];
     }
     // Iterate through the row & column offsets to sum the probabilities of growing a cell in each of the cells surrounding a live cloud cell
     for (let rowOffset = rowOffsetRange[0]; rowOffset <= rowOffsetRange[1]; rowOffset++) {
