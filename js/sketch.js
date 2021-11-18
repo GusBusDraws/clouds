@@ -1,12 +1,12 @@
 const preset = 'big-square';
 let fps = 5;
 let probSeedCol0Spawn = 0.002;
-let probSeedCol0Beside = 0.3;
+let probSeedCol0Beside = 1;
 let probSeedCol0TopCorner = 0.2;
 let probSeedCol0BottomCorner = 0.2;
 let probSeedRandomSpawn = 0.0;
 // Bug when probMaintain != 1
-let probMaintain = 1;
+let probMaintain = 0.9;
 let probGrow = 0.01;
 let bg = [75, 150, 200];
 let nCols;
@@ -63,8 +63,10 @@ function keyPressed() {
   if (key === ' ') {
     if (isLooping()) {
       noLoop();
+      console.log('STOPPED. Press SPACE to resume.')
     } else {
       loop();
+      console.log('RESUMED. Press SPACE to stop.')
     }
   }
 }
@@ -98,10 +100,11 @@ function draw() {
     // Ignore cloud if deleted
     //--------------------------------------------------------------------------
     // Check if cloud was marked to delete from it's death after the last cloud iteration loop (i.e. in the Calc Probs phase)
-    // if (cloudsToDelete[cloud.r][cloud.c]) {
-    //   cloud.toDelete = 1;
-    //   continue;
-    // }
+    if (cloudsToDelete[cloud.r][cloud.c]) {
+      cloud.toDelete = 1;
+      cloudsToDelete[cloud.r][cloud.c] = 0;
+      continue;
+    }
     /////////////////
     // Draw Clouds //
     /////////////////
@@ -124,7 +127,9 @@ function draw() {
     // Add probability of cloud to maintain by adding probability to grid
     //--------------------------------------------------------------------------
     probGrid[cloud.r][cloud.c] = probMaintain;
-    probLocs.push([cloud.r, cloud.c]);
+    if (!probLocs.includes[cloud.r, cloud.c]) {
+      probLocs.push([cloud.r, cloud.c]);
+    }
     // Set row offset range for surrounding cells to make sure off-grid probabilities aren't added
     let rowOffsetRange;
     if (cloud.r == 0) {
@@ -165,20 +170,26 @@ function draw() {
       probGrid[cloud.r][0] = sumProb(
         probGrid[cloud.r][0], probSeedCol0Beside
       );
-      probLocs.push([cloud.r, 0]);
+      if (!probLocs.includes[cloud.r, 0]) {
+        probLocs.push([cloud.r, 0]);
+      }
       // Sum probs for seeds to form in col 0 above and beside live cells in col 1
       if (cloud.r != 0) {
         probGrid[cloud.r - 1][0] = sumProb(
           probGrid[cloud.r - 1][0], probSeedCol0TopCorner
         );
-        probLocs.push([cloud.r - 1, 0]);
+        if (!probLocs.includes[cloud.r - 1, 0]) {
+          probLocs.push([cloud.r - 1, 0]);
+        }
       }
       // Sum probs for seeds to form in col 0 below and beside live cells in col 1
       if (cloud.r != nRows - 1) {
         probGrid[cloud.r + 1][0] = sumProb(
           probGrid[cloud.r + 1][0], probSeedCol0BottomCorner
         );
-        probLocs.push([cloud.r + 1, 0]);
+        if (!probLocs.includes[cloud.r + 1, 0]) {
+          probLocs.push([cloud.r + 1, 0]);
+        }
       }
     }
   }
@@ -213,9 +224,9 @@ function draw() {
       // Add a new cloud object to the clouds list
       clouds.push(new Cloud(loc[0], loc[1], res));
     } else if (!cell && liveCells[loc[0]][loc[1]]) {
-      // If cell is to be turned from alive to dead, mark the Cloud object to be deleted in cloudsToDelete 2D array and turn the cell off in liveCells.
+      // If cell is to be turned from alive to dead, mark the Cloud object to be deleted in cloudsToDelete 2D array (Do not turn off in liveCells so that it is known that a cloud was there for any other probs)
       cloudsToDelete[loc[0]][loc[1]] = 1;
-      liveCells[loc[0]][loc[1]] = 0;
+      // liveCells[loc[0]][loc[1]] = 0;
     }
     if (cell) {
       liveCells[loc[0]][loc[1]] = 1;
