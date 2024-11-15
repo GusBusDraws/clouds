@@ -1,3 +1,6 @@
+// @ts-check
+/// <reference path="./node_modules/@types/p5/global.d.ts" />
+
 function make2DArray(nRows, nCols, fill = undefined) {
   let arr = new Array(nRows);
   for (let i = 0; i < arr.length; i++) {
@@ -14,7 +17,7 @@ function calcProb(prob) {
 }
 
 function sumProb(existingProb, newProb) {
-  prob = existingProb + newProb;
+  let prob = existingProb + newProb;
   if (prob > 1) {
     prob = 1;
   } else if (prob < 0) {

@@ -1,3 +1,6 @@
+// @ts-check
+/// <reference path="./node_modules/@types/p5/global.d.ts" />
+
 class Cloud {
   constructor(r, c, res) {
     this.r = r;
