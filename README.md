@@ -20,3 +20,7 @@ Then, install p5:
 npm install @types/p5
 ```
 
+## Change log
+### 2024-01-28
+- Add type checking for p5 completion
+
